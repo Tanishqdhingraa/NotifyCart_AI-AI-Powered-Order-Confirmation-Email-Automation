@@ -1,0 +1,16 @@
+Q: Why should order prices and tax amounts never be calculated by the client (frontend or AI service)?
+Answer: Frontend payloads can be intercepted and tampered with using tools like Burp Suite or DevTools. 
+An attacker could change a ₹1,000 product price to ₹1. AI models are non-deterministic and hallucinate numbers. 
+The Order Service must look up the authoritative price in the database and calculate totals deterministically on the backend.
+
+
+
+Q: Why separate the Controller from the Service layer?
+Answer: Separation of concerns. The controller handles the HTTP protocol (parsing params, headers, sending status codes). 
+The service contains pure domain business logic. If you later trigger order creation from an asynchronous event queue (RabbitMQ), a CLI script, or gRPC, 
+you can reuse the same service function without dealing with fake HTTP request/response objects.
+
+
+Q: Why use status code 201 Created instead of 200 OK for POST /api/orders?
+Answer: HTTP standard RFC 7231 specifies that 201 Created indicates a new resource was successfully created as a result of the request. 
+It can also include a Location header or the created resource body.
